@@ -1,3 +1,4 @@
+import os
 import time
 import random
 import json
@@ -48,10 +49,28 @@ class Loader(ABC):
         self.train_data[task_key]["processing_time"] = int(time.time())
         return self.train_data[task_key]
 
-    def update(self, task_type: TaskType, id: str, result):
+    def update(self, task_type: TaskType, id: str, meta, filename):
         if id not in self.result_data[task_type.name]:
-            self.result_data[task_type.name][id] = {}
-        self.result_data[task_type.name][id]["result"] = result
+            self.result_data[task_type.name][id] = {"results": []}
+        else:
+            for result in self.result_data[task_type.name][id]["results"]:
+                if sorted(result['meta'].items()) == sorted(meta.items()):
+                    return
+        self.result_data[task_type.name][id]["results"].append(
+            {"meta": meta, "file_path": filename}
+        )
 
         with open(self.result_file_path, "w") as f:
-            json.dumps(self.result_data, f, indent=2)
+            json.dump(self.result_data, f, indent=2)
+
+    def not_exist(self, task_type: TaskType, id: str):
+        self.result_data[task_type.name][id] = {"not_exist": True}
+
+        with open(self.result_file_path, "w") as f:
+            json.dump(self.result_data, f, indent=2)
+    
+    def get_result(self, task_type: TaskType, id: str):
+        return self.result_data[task_type.name][id]["results"]
+    
+    def get_file_path(self, task_type: TaskType, file_name: str):
+        return os.path.join(self.result_dir_path, file_name)
