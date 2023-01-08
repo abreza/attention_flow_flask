@@ -8,11 +8,12 @@ from random import shuffle
 
 from app.Loader.base import TaskType
 from app.Loader.activitynet200 import Activitynet200Loader
+from app.Loader.msrvtt import MSR_VTTLoader
 
 
 app = Flask(__name__)
 
-loaders = {"activitynet200": Activitynet200Loader()}
+loaders = {"activitynet200": Activitynet200Loader(), "msr-vtt": MSR_VTTLoader()}
 task_types = {
     "attention_flow": TaskType.ATTENTION_FLOW,
     "score_frames": TaskType.SCORE_FRAMES,
